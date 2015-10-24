@@ -1,0 +1,23 @@
+RewriteEngine On
+Options +FollowSymlinks
+
+RewriteRule ^\.htaccess$ - [F,L]
+
+# File exists => no redirect
+RewriteCond %{REQUEST_FILENAME} -d [OR]
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule .? - [L]
+
+# Shortcut to the logout action of the login controller
+RewriteRule ^logout$                  index.php?control=login&action=logout&view=logout [QSA,L]
+
+
+#################################
+# Insert custom rules here and finish them with the [L] flag if necessary!
+#################################
+
+
+# Generic rules of the CMS
+RewriteRule ^([^/]+?)/([^/]+?)/([^/]+?)$ index.php?control=$1&action=$2&view=$3 [QSA]
+RewriteRule ^([^/]+?)/([^/]+?)$          index.php?control=$1&action=$2 [QSA]
+RewriteRule ^([^/]+?)$                   index.php?control=$1 [QSA]

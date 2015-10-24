@@ -1,0 +1,38 @@
+table.filebrowser {
+	width: 100%;
+	
+	border: 0;
+	padding: 0;
+	margin: 0;
+	
+	> thead {
+		tr > th {
+			border-bottom: 1px solid #eee;
+			font-weight: bold;
+			font-size: 1.2em;
+		}
+		tr:last-child > th {
+			border-bottom-width: 2px;
+		}
+	}
+	
+	> tbody {
+		tr > td {
+			border-top: 1px solid #eee;
+			padding: 5px 3px;
+			cursor: pointer;
+		}
+		tr:first-child > td {
+			border-top: 0;
+		}
+		tr:hover > td, tr.hover > td {
+			background: #f0f0f0;
+		}
+		tr.selected > td {
+			background: #f1f5ff;
+		}
+		tr.highlight > td {
+			background: #FDFFB7;
+		}
+	}
+}

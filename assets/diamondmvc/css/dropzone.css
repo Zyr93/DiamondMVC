@@ -1,0 +1,34 @@
+.dropzone {
+	border-color: #DDB154;
+	border-width: 5px;
+	border-style: dashed;
+}
+
+.dropzone .clickable {
+	width: 100%;
+	min-height: 200px;
+}
+
+.dropzone .controls {
+	display: none;
+	text-align: right;
+}
+
+
+.dropzone .controls .control {
+	cursor: pointer;
+	font-size: 2em;
+}
+.dropzone .controls .control-return {
+	color: rgb(134, 134, 255);
+}
+.dropzone .controls .control-abort {
+	color: rgb(250, 90, 90);
+}
+.dropzone .controls .control-confirm {
+	color: rgb(89, 195, 89);
+}
+.dropzone .controls .control-confirm.disabled {
+	cursor: auto;
+	color: #ccc;
+}

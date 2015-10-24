@@ -1,0 +1,152 @@
+@import "../../../assets/less/sizes";
+
+#master-wrapper.frontpage-tpl {
+	#body-wrapper {
+		#body-inner-wrapper {
+			position: relative;
+			width: 100%;
+			max-width: 100%;
+			margin: 0;
+			padding: 0;
+			padding-bottom: 80px;
+			background: #efefef;
+		}
+	}
+	
+	/* Use margin-left and margin-top to align the .fp-note */
+	.fp-note {
+		display: block;
+		position: absolute;
+		top: -10000px;
+		min-width: 200px;
+		min-height: 200px;
+		padding: 20px;
+		background: white;
+		border: 1px solid #ccc;
+		float: left;
+	}
+	
+	#fp-note-welcome {
+		text-align: center;
+	}
+	#fp-note-features-long {
+		ul > li {
+			margin-bottom: 10px;
+		}
+	}
+	
+	@media (max-width: (@size-monitor-sm - 1)) {
+		.fp-note {
+			display: block;
+			position: static;
+			min-width: 0;
+			min-height: 0;
+			margin: 0;
+			margin-bottom: 20px;
+			border-left: 0;
+			border-right: 0;
+			float: none;
+		}
+		
+		#fp-note-features-long {
+			display: none;
+		}
+	}
+	@media (min-width: @size-monitor-sm) and (max-width: (@size-monitor-md - 1)) {
+		#body-inner-wrapper {
+			height: 900px;
+		}
+		
+		#fp-note-welcome {
+			width: 600px;
+			top: 50px;
+			left: 40px;
+			z-index: 12;
+			box-shadow: 10px 10px 10px #999;
+		}
+		
+		#fp-note-short-desc {
+			width: 400px;
+			top: 240px;
+			left: 90px;
+			z-index: 11px;
+			box-shadow: 5px 5px 5px #999;
+		}
+		
+		#fp-note-features-short {
+			width: 400px;
+			top: 280px;
+			left: 480px;
+			z-index: 10px;
+			box-shadow: 5px 5px 5px #999;
+		}
+		
+		#fp-note-features-long {
+			display: none;
+		}
+	}
+	@media (min-width: @size-monitor-md) and (max-width: (@size-monitor-lg - 1)) {
+		#body-inner-wrapper {
+			height: 900px;
+		}
+		
+		#fp-note-welcome {
+			width: 600px;
+			top: 50px;
+			left: 80px;
+			z-index: 11;
+			box-shadow: 10px 10px 10px #999;
+		}
+		
+		#fp-note-short-desc {
+			width: 400px;
+			top: 240px;
+			left: 130px;
+			z-index: 10;
+			box-shadow: 5px 5px 5px #999;
+		}
+		
+		#fp-note-features-long {
+			width: 500px;
+			top: 0px;
+			left: 640px;
+			box-shadow: 5px 5px 5px #999;
+		}
+	}
+	@media (min-width: @size-monitor-lg) {
+		#body-inner-wrapper {
+			height: 800px;
+		}
+		
+		#fp-note-welcome {
+			width: 800px;
+			top: 40px;
+			left: 80px;
+			z-index: 11;
+			box-shadow: 10px 10px 10px #999;
+		}
+		
+		#fp-note-short-desc {
+			width: 600px;
+			top: 230px;
+			left: 130px;
+			z-index: 10;
+			box-shadow: 5px 5px 5px #999;
+		}
+		
+		#fp-note-features-long {
+			width: 600px;
+			top: 20px;
+			left: 920px;
+			box-shadow: 5px 5px 5px #999;
+		}
+	}
+	
+	.blue {
+		color: #2BA6F1;
+	}
+	
+	.fp-note .fa-external-link {
+		font-size: 0.9em;
+	}
+}
