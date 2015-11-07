@@ -3,7 +3,7 @@
  * @package  DiamondMVC
  * @author   Zyr <zyrius@live.com>
  * @version  1.0
- * @license  CC-SA 2.5 (https://creativecommons.org/licenses/by-sa/2.5/)
+ * @license  CC-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/)
  * 
  * An event can be created and triggered via DiamondMVC by any component. Plugins can then
  * manipulate or react to the information stored in this object to customize the behavior

@@ -3,7 +3,7 @@
  * @package  DiamondMVC
  * @author   Zyr <zyrius@live.com>
  * @version  1.0
- * @license  CC-SA 2.5 (https://creativecommons.org/licenses/by-sa/2.5/)
+ * @license  CC-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/)
  * 
  * Adds the main menu to the websites. Could be made much more elaborate, but for the
  * sake of this demo we do not require any more complex menu establishment.

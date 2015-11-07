@@ -3,7 +3,7 @@
  * @package  DiamondMVC
  * @author   Zyr <zyrius@live.com>
  * @version  1.0
- * @license  CC-SA 2.5 (https://creativecommons.org/licenses/by-sa/2.5/)
+ * @license  CC-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/)
  * 
  * The i18n class allows easy multilingual support for the website. It checks the session for
  * the user's chosen language: $_SESSION['lang']. Set this session variable respectively to

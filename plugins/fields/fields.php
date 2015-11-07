@@ -3,7 +3,7 @@
  * @package  DiamondMVC
  * @author   Zyr <zyrius@live.com>
  * @version  1.0
- * @license  CC-SA 2.5 (https://creativecommons.org/licenses/by-sa/2.5/)
+ * @license  CC-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/)
  * 
  * Registers non-standard field classes with the form builder.
  * NOTE: The form related classes require a total revamp. They were custom tailored

@@ -3,7 +3,7 @@
  * @package  DiamondMVC
  * @author   Zyr <zyrius@live.com>
  * @version  1.0
- * @license  CC-SA 2.5 (https://creativecommons.org/licenses/by-sa/2.5/)
+ * @license  CC-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/)
  * 
  * A driving class for HTML representation of and user interaction with fields.
  * TODO: Once the template class is adapted for general purpose use, this class ought to inherit from it.

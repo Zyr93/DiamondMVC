@@ -3,7 +3,7 @@
  * @package  Revinary
  * @author   Zyr <zyrius@live.com>
  * @version  1.0
- * @license  CC-SA 2.5 (https://creativecommons.org/licenses/by-sa/2.5/)
+ * @license  CC-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/)
  * 
  * Adds menus to different parts of the website. The main menu can be found on nearly
  * every page.
