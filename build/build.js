@@ -49,7 +49,17 @@ var fs       = require('fs'),
 	
 	var result = target.apply(this, args);
 	if( result !== undefined ) {
-		console.log(result);
+		if( result instanceof Promise ) {
+			result.then(function(){
+				console.log('Request result: ', arguments);
+			},
+			function( err ) {
+				throw err;
+			});
+		}
+		else {
+			console.log(result);
+		}
 	}
 })();
 
@@ -139,8 +149,10 @@ function build( ) {
 		new Promise(
 			function( resolve, reject ) {
 				getAllFiles().then(function( files ) {
+					var promises = [];
+					
 					// First update registry item
-					updateRegistry(files);
+					promises.push(updateRegistry(files));
 					
 					// Create release directory if necessary
 					if( !fs.existsSync('release') ) {
@@ -211,7 +223,7 @@ function build( ) {
 		Promise.all([
 			packUpdateFiles(zip),
 			packUpdateScript(zip)
-		]).done(function(){
+		]).then(function(){
 			console.log('Packed update archive');
 		},
 		function( err ) {
@@ -232,21 +244,22 @@ function commit( message ) {
 	var execPromise = Promise.denodeify(exec);
 	
 	return new Promise(function( resolve, reject ) {
-		Promise.all([
-			stageUntracked(),
-			stageChanged(),
-			stageDeleted(),
-		]).then(function() {
-			execPromise('git commit -m "' + message + '"').then(function(){
-				resolve();
-			},
-			function( err ){
-				reject(err);
-			});
-		},
-		function( err ) {
-			reject(err);
-		});
+		stageUntracked().then(function(){
+			stageChanged().then(function(){
+				stageDeleted().then(function(){
+					console.log('Files staged, committing ...');
+					
+					execPromise('git commit -m "' + message + '"').then(function(){
+						console.log('Changes committed - ready to push');
+						resolve();
+					},
+					function( err ){
+						console.log('Failed to commit changes');
+						reject(err);
+					});
+				}, reject);
+			}, reject);
+		}, reject);
 	});
 }
 
@@ -254,6 +267,9 @@ function commit( message ) {
  * Push the latest commits to the remote repository.
  */
 function push( repo ) {
+	console.log('Pending feature - requires origin repository');
+	return;
+	
 	if( !repo || !repo.trim().length ) {
 		repo = 'origin';
 	}
@@ -262,10 +278,7 @@ function push( repo ) {
 		var execPromise = Promise.denodeify(exec);
 		execPromise('git push ' + repo).then(function( ) {
 			resolve();
-		},
-		function( err ) {
-			reject(err);
-		});
+		}, reject);
 	});
 }
 
@@ -274,6 +287,7 @@ function push( repo ) {
  */
 function deploy( ) {
 	// TODO: Use an SSH client to connect to the server, pull changes and run the deployment script
+	console.log('Pending feature - requires server side script on master server');
 }
 
 
@@ -294,12 +308,10 @@ function incrementBuildNumber( ) {
  * Promise to asynchronously get all the important (i.e. non-temporary) file names of this library.
  */
 function getAllFiles( ) {
-	var files = [];
-	
 	return new Promise(function( resolve, reject ) {
-		Promise.all([glob('!(build|logs|uploads|tmp)/**', {cwd: '..'}), glob('*', {cwd: '..'}), glob('**/.htaccess', {cwd: '..'})]).then(
+		Promise.all([glob('!(logs|uploads|tmp)/**', {cwd: '..'}), glob('*', {cwd: '..'}), glob('**/.htaccess', {cwd: '..'})]).then(
 			function( res ) {
-				resolve(res[0].concat(res[1]).concat(res[2]));
+				resolve(removeBuildFiles(res[0].concat(res[1]).concat(res[2])));
 			},
 			function( err ) {
 				reject(err);
@@ -375,25 +387,20 @@ function packFiles( files, zip ) {
  * Upon success, passes the initially received ZIP archive and the added files to the handler.
  */
 function packUpdateFiles( zip ) {
-	return new Promise(function( _resolve, _reject ) {
+	return new Promise(function( resolve, reject ) {
 		// Get both changed and untracked files
 		Promise.all([
 			getChanged(),
 			getUntracked(),
-		]).then(
-			function( res ) {
-				var files = res[0].concat(res[1]);
-				
-				for( var i = 0; i < files.length; ++i ) {
-					zip.file('../' + files[i], {name: files[i]});
-				}
-				
-				_resolve(zip, files);
-			},
-			function( err ) {
-				_reject(err);
+		]).then(function( res ) {
+			var files = res[0].concat(res[1]);
+			
+			for( var i = 0; i < files.length; ++i ) {
+				zip.file('../' + files[i], {name: files[i]});
 			}
-		);
+			
+			resolve(zip, files);
+		}, reject);
 	});
 }
 
@@ -431,7 +438,7 @@ function generateFileRemovalSnippet( files ) {
 		getDeleted().then(
 			function( ) {
 				// Double stringification to add quotes to the string and escape correctly.
-				resolve('$tmpFiles=json_decode(' + JSON.stringify(JSON.stringify(files)) + ')' +
+				resolve('$tmpFiles=json_decode(' + JSON.stringify(JSON.stringify(files)) + ');' +
 					'foreach( $tmpfiles as $file ) {' + 
 						'unlink(jailpath(DIAMONDMVC_ROOT, $file));' +
 					'}');
@@ -443,10 +450,6 @@ function generateFileRemovalSnippet( files ) {
 	});
 }
 
-
-function push( ) {
-	
-}
 
 function stageChanged( ) {
 	return stageAdd(getChanged);
@@ -473,10 +476,7 @@ function stageAdd( getFiles ) {
 			function( err ) {
 				reject(err);
 			});
-		},
-		function( err ) {
-			reject(err);
-		});
+		}, reject);
 	});
 }
 
@@ -487,23 +487,20 @@ function stageDeleted( ) {
 function stageRm( getFiles ) {
 	return new Promise(function( resolve, reject ) {
 		getFiles().then(function( files ) {
-			var execPromise = Promise.denodeify(exec),
-				promises    = [];
+			var execPromise = Promise.denodeify(exec);
 			
-			files.forEach(function(file){
-				promises.push(exec('git rm ' + file));
-			});
+			// Prefix all files with the 'parent directory' special dir
+			for( var i = 0; i < files.length; ++i ) {
+				files[i] = '../' + files[i];
+			}
 			
-			Promise.all(promises).then(function( res ) {
+			execPromise('git rm --cached ' + files.join(' ')).then(function( res ) {
 				resolve();
 			},
 			function( err ) {
 				reject(err);
 			});
-		},
-		function( err ) {
-			reject(err);
-		});
+		}, reject);
 	});
 }
 
@@ -512,9 +509,26 @@ function stageRm( getFiles ) {
  */
 function getChanged( ) {
 	return new Promise(function( resolve, reject ) {
-		exec('git diff --name-only HEAD', function( err, stdout, stderr ) {
+		var promise = getDeleted();
+		
+		exec('git diff --name-only', function( err, stdout, stderr ) {
+			// TODO: Remove deleted files from this list.
 			if( err ) reject(err);
-			resolve(removeBuildFiles(stdout.split('\n')));
+			
+			var files = removeBuildFiles(stdout.split('\n'));
+			
+			promise.then(function( removed ){
+				removed.forEach(function(item){
+					var index = files.indexOf(item);
+					if( index !== -1 ) {
+						files.splice(index, 1);
+					}
+				});
+				resolve(files);
+			},
+			function( err ) {
+				reject(err);
+			});
 		});
 	});
 }
@@ -537,7 +551,7 @@ function getUntracked( ) {
  */
 function getDeleted( ) {
 	return new Promise(function( resolve, reject ) {
-		exec('git ls-files -d', function( err, stdout, stderr ) {
+		exec('git ls-files -d', {cwd: '..'}, function( err, stdout, stderr ) {
 			if( err ) reject(err);
 			resolve(removeBuildFiles(stdout.split('\n')));
 		});
@@ -552,7 +566,10 @@ function getDeleted( ) {
 function removeBuildFiles( files ) {
 	var result = [];
 	for( var i = 0; i < files.length; ++i ) {
-		if( !files[i].trim().length || files[i].indexOf('build/') === 0 ) continue;
+		var file = files[i];
+		
+		if( !file.trim().length || file.indexOf('build/') === 0 ) continue;
+		if( file === '.gitigmore' || file === 'project.sublime-project' || file === 'project.sublime-workspace' ) continue;
 		result.push(files[i]);
 	}
 	return result;
