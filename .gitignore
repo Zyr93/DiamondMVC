@@ -2,3 +2,7 @@ logs/*
 uploads/*
 tmp/*
 *.sublime-*
+
+build/release/*
+build/update/*
+build/update.json

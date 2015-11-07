@@ -244,19 +244,21 @@ function commit( message ) {
 	var execPromise = Promise.denodeify(exec);
 	
 	return new Promise(function( resolve, reject ) {
-		stageUntracked().then(function(){
-			stageChanged().then(function(){
-				stageDeleted().then(function(){
-					console.log('Files staged, committing ...');
-					
-					execPromise('git commit -m "' + message + '"').then(function(){
-						console.log('Changes committed - ready to push');
-						resolve();
-					},
-					function( err ){
-						console.log('Failed to commit changes');
-						reject(err);
-					});
+		execPromise('git add options.json').then(function(){
+			stageUntracked().then(function(){
+				stageChanged().then(function(){
+					stageDeleted().then(function(){
+						console.log('Files staged, committing ...');
+						
+						execPromise('git commit -m "' + message + '"').then(function(){
+							console.log('Changes committed - ready to push');
+							resolve();
+						},
+						function( err ){
+							console.log('Failed to commit changes');
+							reject(err);
+						});
+					}, reject);
 				}, reject);
 			}, reject);
 		}, reject);
@@ -462,14 +464,14 @@ function stageUntracked( ) {
 function stageAdd( getFiles ) {
 	return new Promise(function( resolve, reject ) {
 		getFiles().then(function( files ) {
-			var execPromise = Promise.denodeify(exec),
-				promises    = [];
+			var execPromise = Promise.denodeify(exec);
 			
-			files.forEach(function(file) {
-				promises.push(exec('git add ' + file));
-			});
+			// Prefix paths with the '../' special dir
+			for( var i = 0; i < files.length; ++i ) {
+				files[i] = '../' + files[i];
+			}
 			
-			Promise.all(promises).then(function( res ) {
+			execPromise('git add ' + files.join(' ')).then(function( res ) {
 				// TODO: Do something with the output of all calls to verify they properly ended. Or do that above.
 				resolve();
 			},
