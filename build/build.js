@@ -8,7 +8,9 @@
  */
 
 var fs       = require('fs'),
-	exec     = require('child_process').exec,
+	cp       = require('child_process'),
+	exec     = cp.exec,
+	spawn    = cp.spawn,
 	Promise  = require('promise'),
 	archiver = require('archiver'),
 	glob     = Promise.denodeify(require('glob')),
@@ -268,19 +270,36 @@ function commit( message ) {
 /**
  * Push the latest commits to the remote repository.
  */
-function push( repo ) {
-	console.log('Pending feature - requires origin repository');
-	return;
-	
+function push( repo, branch ) {
 	if( !repo || !repo.trim().length ) {
 		repo = 'origin';
 	}
+	if( !branch || !branch.trim().length ) {
+		branch = 'master';
+	}
 	
 	return new Promise(function( resolve, reject ) {
-		var execPromise = Promise.denodeify(exec);
-		execPromise('git push ' + repo).then(function( ) {
-			resolve();
-		}, reject);
+		var child = spawn('git', ['push', repo, branch], {
+			stdin : 0,
+			stdout : 'pipe',
+			stderr : 'pipe',
+		});
+		
+		child.stdout.pipe(process.stdout);
+		child.stderr.pipe(process.stderr);
+		
+		child.on('close', function( code ) {
+			if( code !== 0 ) {
+				console.log('git push terminated abnormally with code ' + code);
+				reject('git push terminated abnormally with code ' + code);
+			}
+			else {
+				resolve();
+			}
+		});
+		child.on('exit', function( code ) {
+			reject('git push exited abnormally with code ' + code);
+		});
 	});
 }
 
