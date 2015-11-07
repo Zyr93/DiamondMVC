@@ -229,13 +229,13 @@ final class InstallationManager {
 	 * @param string $origMeta Unique ID of the meta data file containing installation information
 	 */
 	static public function update( $origMeta ) {
-		$__meta = self::getMetaPath($origMeta);
-		if( empty($__meta) ) {
-			throw new InvalidArgumentException('Parameter $__meta must be a path to an installation meta data file');
+		$meta = self::getMetaPath($origMeta);
+		if( empty($meta) ) {
+			throw new InvalidArgumentException('Parameter $origMeta must be a path to an installation meta data file');
 		}
 		
-		$inst = Installation::getInstallation(json_decode(file_get_contents($__meta), true));
-		$updt = self::getUpdateData($inst);
+		$instOld = Installation::getInstallation(json_decode(file_get_contents($meta), true));
+		$updt    = self::getUpdateData($instOld);
 		
 		if( empty($updt) ) {
 			throw new InstallationException("Failed to download update data");
@@ -246,21 +246,30 @@ final class InstallationManager {
 		}
 		
 		// Already throws exceptions
-		$__zip = self::download($updt['url']);
+		$zip = self::download($updt['url']);
 		
 		// Simply install the update.
-		$id = self::install($__zip);
+		$id = self::install($zip);
 		
 		// Remove the temporarily downloaded files.
-		unlink($__zip);
+		unlink($zip);
 		
 		// Remove the old meta file
 		unlink(jailpath(DIAMONDMVC_ROOT . DS . 'registry', $origMeta));
 		
-		// If we're updating the Diamond itself, we'll need to rename the newly saved meta data file respectively.
+		// If we're updating the Diamond itself, it already delivers its own meta data file. Unlink the new one.
 		if( $origMeta === 'diamondmvc.json' ) {
-			rename(DIAMONDMVC_ROOT . "/registry/$id.json", DIAMONDMVC_ROOT . "/registry/diamondmvc.json");
-			$id = 'diamondmvc';
+			unlink(jailpath(DIAMONDMVC_ROOT . DS . 'registry', "$id.json"));
+		}
+		// Otherwise merge registered files of both old and new installations.
+		else {
+			$path = self::getMetaPath($id);
+			$instNew  = Installation::getInstallation(json_decode(file_get_contents($path), true));
+			
+			$files = array_merge($instOld->getFiles(), $instNew->getFiles());
+			natsort($files);
+			
+			$instNew->setFiles($files);
 		}
 		
 		return $id;

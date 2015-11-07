@@ -42,7 +42,7 @@ class ControllerLogin extends Controller {
 				return;
 			}
 			else {
-				$this->addMessage('Fehler', 'The given user-password combination was not found.', 'error');
+				$this->addMessage('Error', 'The given email-password combination was not found.', 'error');
 			}
 		}
 	}

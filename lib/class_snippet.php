@@ -138,7 +138,7 @@ class Snippet {
 	 * @param  mixed  $default Value to return if the parameter is unset.
 	 * @return mixed           Value of the parameter or the given $default.
 	 */
-	public function getParam( $name, $default ) {
+	public function getParam( $name, $default = '' ) {
 		if( isset($this->params[$name]) ) {
 			return $this->params[$name];
 		}
