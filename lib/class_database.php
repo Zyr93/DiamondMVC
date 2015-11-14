@@ -194,7 +194,7 @@ class database {
 		
 		$this->mysqli = new mysqli($host, $user, $pass, '', $port);
 		if( $this->mysqli->connect_error) {
-			throw new Exception('Es konnte keine Verbindung zur database hergestellt werden.');
+			throw new Exception('Failed to connect to database');
 		}
 		$this->mysqli->set_charset('utf8');
 		return $this;
@@ -213,7 +213,7 @@ class database {
 	 * @return database|string            Diese Instanz zur Methodenverkettung oder der Name der database, die derzeit verwendet wird.
 	 */
 	public function useDB( $database = '' ) {
-		if( empty($database) ) {
+		if( !func_num_args() ) {
 			return $this->db;
 		}
 		$this->db = $database;
@@ -228,7 +228,7 @@ class database {
 	 * @return database|string        Diese Instanz zur Methodenverkettung oder der Name der database, die derzeit verwendet wird.
 	 */
 	public function select( $table = '' ) {
-		if( func_num_args() === 0 ) {
+		if( !func_num_args() ) {
 			return $this->table;
 		}
 		$this->table = $this->prefix . $table;
@@ -250,7 +250,7 @@ class database {
 	 * @return string|array|database         Setter: Diese Instanz zur Methodenverkettung. Getter: Derzeit gesetzte Felder.
 	 */
 	public function fields( $fields = '' ) {
-		if( empty($fields) ) {
+		if( !func_num_args() ) {
 			return $this->fields;
 		}
 		$this->fields = $fields;
@@ -383,7 +383,7 @@ class database {
 	 * @return Join|database          The constructed Join object for further specification of the properties of the join or this instance to enable method chaining in case the join is reset.
 	 */
 	public function join( $tabname = '' ) {
-		if( empty($tabname) ) {
+		if( !func_num_args() ) {
 			$this->join = null;
 			return $this;
 		}
@@ -414,7 +414,7 @@ class database {
 	 * @return Database This instance to enable method chaining.
 	 */
 	public function filter( $filter = '' ) {
-		if( empty($filter) ) {
+		if( !func_num_args() ) {
 			return $this->filter;
 		}
 		$this->filter = $filter;
@@ -1514,9 +1514,6 @@ class database {
 		
 		if( Config::main()->get('DBO_ENFORCE_COL_DELETED') and !$this->ignoreDeleted ) {
 			$filters[] = "`$db`.`$table`.`DELETED`=0";
-		}
-		if( Config::main()->get('DBO_ENFORCE_COL_HIDDEN')  and !$this->ignoreHidden ) {
-			$filters[] = "`$db`.`$table`.`HIDDEN`=0";
 		}
 		
 		return empty($filters) ? '' : '(' . implode(') AND (', $filters) . ')';
