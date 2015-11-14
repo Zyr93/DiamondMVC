@@ -491,6 +491,12 @@ function stageAdd( getFiles ) {
 				files[i] = '../' + files[i];
 			}
 			
+			// No files to add. We're done here.
+			if( !files.length ) {
+				resolve();
+				return;
+			}
+			
 			execPromise('git add ' + files.join(' ')).then(function( res ) {
 				// TODO: Do something with the output of all calls to verify they properly ended. Or do that above.
 				resolve();
@@ -514,6 +520,12 @@ function stageRm( getFiles ) {
 			// Prefix all files with the 'parent directory' special dir
 			for( var i = 0; i < files.length; ++i ) {
 				files[i] = '../' + files[i];
+			}
+			
+			// No files to remove. We're done here.
+			if( !files.length ) {
+				resolve();
+				return;
 			}
 			
 			execPromise('git rm --cached ' + files.join(' ')).then(function( res ) {
