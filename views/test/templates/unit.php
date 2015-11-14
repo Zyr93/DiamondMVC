@@ -4,12 +4,11 @@
  * @author   Zyr <zyrius@live.com>
  * @version  1.0
  * @license  CC-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/)
- * @param View $this
  */
 defined('DIAMONDMVC') or die();
 
 $result = $this->controller->getResult();
+foreach( $result as $unit ) {
+	include($unit);
+}
 ?>
-<div class="view view-test view-temp-test">
-	<?php var_dump($result) ?>
-</div>

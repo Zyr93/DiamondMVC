@@ -10,6 +10,7 @@ OVERVIEW=Overview
 PERMISSIONS=Permissions
 PLUGINS=Plugins
 UNINSTALL=Uninstall
+UNITTEST=Unittest
 UNKNOWN=Unknown
 USERS=Users
 VERSION=Version
@@ -58,3 +59,15 @@ TITLE=Update extension
 
 SUCCESS="The extension was successfully updated! Click %return-link% to return to the extension overview."
 FAILURE="The extension could not be installed! Please refer to both the given error messages and the logs."
+
+
+[ControllerTest.Overview]
+PARAGRAPH1="I know unittests are quite helpful, but not until recently this project was actually
+designed as a small project. Now with my goal being a hopefully widespread foundation
+for developers unittests become quite critical in not only ensuring the proper
+functioning of the system but also as a time saver.
+Thus expect this incomplete list to be growing over the next few (i.e. all) versions."
+
+PARAGRAPH2='Feel free to add your own unittest here. They are read from the
+directory &quot;/unittest&quot;. Each test has its own subdirectory there and contains
+a file called &quot;test.php&quot; which will then be included in the test view.'
