@@ -138,9 +138,6 @@ class Join {
 		if( Config::main()->get('DBO_ENFORCE_COL_DELETED') and !$this->ignoreDeleted ) {
 			$condition .= ' AND `' . $this->tabname . '`.`DELETED`=0';
 		}
-		if( Config::main()->get('DBO_ENFORCE_COL_HIDDEN') and !$this->ignoreHidden ) {
-			$condition .= ' AND `' . $this->tabname . '`.`HIDDEN`=0';
-		}
 		return implode(' ', array($this->jointype, 'JOIN', "`$db`.`" . $this->tabname . '`', $condition)) . (!empty($this->more) ? ' ' . $this->more->str($db) : '');
 	}
 	
