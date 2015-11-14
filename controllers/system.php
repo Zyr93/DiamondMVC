@@ -220,7 +220,7 @@ class ControllerSystem extends Controller {
 		catch( Exception $ex ) {
 			$this->result = array('success' => false, 'msg' => $ex->getMessage());
 			$this->addMessage('Whoops!', 'An exception occurred: ' . $ex->getMessage(), 'error');
-			logMsg('DiamondMVC: failed to update installation ' . $_REQUEST['id'] . ' with exception: ' . $ex->getMessage(), 9, false);
+			logMsg('DiamondMVC: failed to update installation ' . $_REQUEST['id'] . ' with exception (' . $ex->getCode() '): ' . $ex->getMessage(), 9, false);
 		}
 	}
 	
