@@ -93,12 +93,14 @@ final class DiamondMVC {
 	}
 	
 	/**
-	 * Checks whether the system has been installed. It does so by checking whether the file "install"
-	 * exists in the root directory.
+	 * Checks whether the system has been installed. It does so by checking whether the
+	 * "/firstinstall" directory in the system root exists. It should contain the installation
+	 * script. After the installation this directory is removed to prevent accidental
+	 * reinstallation of the system.
 	 * @return boolean
 	 */
 	public function isInstalled( ) {
-		return !file_exists(DIAMONDMVC_ROOT . '/install');
+		return !is_dir(DIAMONDMVC_ROOT . '/firstinstallation');
 	}
 	
 	/**
@@ -192,7 +194,6 @@ final class DiamondMVC {
 			logMsg("DiamondMVC: view is " . $view, 1, false);
 
 			// The controller is the heart of the MVC system.
-			
 			logMsg("DiamondMVC: constructing controller", 1, false);
 			$controller = new $control();
 			
@@ -263,13 +264,6 @@ final class DiamondMVC {
 		}
 		
 		Profiler::endSection();
-	}
-	
-	/**
-	 * Main routine to run the entire installation process.
-	 */
-	public function install( ) {
-		// TODO: Install the system and trivial databases.
 	}
 	
 	
