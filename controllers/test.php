@@ -18,16 +18,39 @@ class ControllerTest extends Controller {
 			return $this->redirect();
 		}
 		
+		$result = array();
+		
 		$dir = opendir(DIAMONDMVC_ROOT . DS . 'unittest');
-		// TODO
+		while( ($item = readdir($dir)) ) {
+			if( $item === '.' or $item === '..' ) continue;
+			
+			$result[] = $item;
+		}
+		
+		$this->result = $result;
+	}
+	
+	protected function action_unit( ) {
+		if( !Config::main()->get('DEBUG_MODE') ) {
+			return $this->redirect();
+		}
+		
+		$result = array();
+		
+		foreach( $_REQUEST as $unit => $dummy ) {
+			$path = DIAMONDMVC_ROOT . "/unittest/$unit/test.php";
+			if( file_exists($path) ) {
+				$result[] = $path;
+			}
+		}
+		
+		$this->result = $result;
 	}
 	
 	protected function action_temporary( ) {
 		if( !Config::main()->get('DEBUG_MODE') ) {
 			return $this->redirect();
 		}
-		
-		$this->result = $this->getIndexedFileName(DIAMONDMVC_ROOT . '/foo/bar.bitch', 12);
 	}
 	
 	protected function redirect( ) {
