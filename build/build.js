@@ -399,6 +399,7 @@ function packFiles( files, zip ) {
 		for( var i = 0; i < files.length; ++i ) {
 			zip.file('../' + files[i], {name: files[i]});
 		}
+		zip.directory('../firstinstallation.bak', 'firstinstallation');
 		resolve();
 	});
 }
@@ -591,6 +592,7 @@ function removeBuildFiles( files ) {
 		
 		if( !file.trim().length || file.indexOf('build/') === 0 ) continue;
 		if( file === '.gitigmore' || file === 'project.sublime-project' || file === 'project.sublime-workspace' ) continue;
+		if( file.indexOf('firstinstallation') === 0 ) continue;
 		result.push(files[i]);
 	}
 	return result;
