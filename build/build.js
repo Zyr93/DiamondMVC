@@ -226,9 +226,11 @@ function build( ) {
 			packUpdateFiles(zip),
 			packUpdateScript(zip)
 		]).then(function(){
+			zip.finalize();
 			console.log('Packed update archive');
 		},
 		function( err ) {
+			zip.finalize();
 			console.log('Failed to pack update archive');
 		});
 	});
