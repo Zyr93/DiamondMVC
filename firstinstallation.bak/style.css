@@ -1,0 +1,12 @@
+#header {
+	height: 150px;
+	padding: 10px;
+	border-bottom: 2px solid #bbb;
+}
+#header h2 {
+	margin-left: 80px;
+}
+
+.view {
+	margin: 10px;
+}
