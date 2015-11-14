@@ -376,7 +376,7 @@ function generateUpdateFile( ) {
 		// Generate update information file
 		var updateOutput = {
 			version: buildopts.version,
-			url: "http://dl.wings-of-dragons.com/diamondmvc/" + buildopts.version + ".zip",
+			url: "http://dl.wings-of-dragons.com/diamondmvc/update/" + buildopts.version + ".zip",
 		};
 
 		fs.writeFile('./update.json', JSON.stringify(updateOutput), function( err ) {
