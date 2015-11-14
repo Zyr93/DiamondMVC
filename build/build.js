@@ -463,7 +463,7 @@ function generateFileRemovalSnippet( files ) {
 			function( ) {
 				// Double stringification to add quotes to the string and escape correctly.
 				resolve('$tmpFiles=json_decode(' + JSON.stringify(JSON.stringify(files)) + ');' +
-					'foreach( $tmpfiles as $file ) {' + 
+					'foreach( $tmpFiles as $file ) {' + 
 						'unlink(jailpath(DIAMONDMVC_ROOT, $file));' +
 					'}');
 			},
