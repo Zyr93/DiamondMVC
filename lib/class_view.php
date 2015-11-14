@@ -40,6 +40,7 @@ class View extends Snippet {
 	 * Constructs a new view with a particular name. The view name is the same as the HTML template file's name.
 	 * @param Controller $controller Associated controller
 	 * @param string     $name       of the view
+	 * @param string     $type       Render type of the view. Defaults to html.
 	 */
 	public function __construct( $controller, $name, $type = 'html' ) {
 		parent::__construct('');
