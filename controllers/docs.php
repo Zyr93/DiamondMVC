@@ -15,6 +15,7 @@ class ControllerDocs extends Controller {
 	
 	public function action_main( ) {}
 	public function action_getting_started( ) {}
+	public function action_configuration( ) {}
 	public function action_controllers( ) {}
 	public function action_views( ) {}
 	public function action_models( ) {}
