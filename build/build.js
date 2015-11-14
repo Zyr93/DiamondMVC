@@ -593,6 +593,7 @@ function removeBuildFiles( files ) {
 		if( !file.trim().length || file.indexOf('build/') === 0 ) continue;
 		if( file === '.gitigmore' || file === 'project.sublime-project' || file === 'project.sublime-workspace' ) continue;
 		if( file.indexOf('firstinstallation') === 0 ) continue;
+		if( file.indexOf('registry') === 0 ) continue;
 		result.push(files[i]);
 	}
 	return result;
