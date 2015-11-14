@@ -1,6 +1,6 @@
 # DiamondMVC
 
-## a web developer's scaffolding or the Linux of web server platforms.
+### a web developer's scaffolding or the Linux of web server platforms.
 
 The objective of *the Diamond* is to accelerate the development process of any kind of web
 project. Unlike a CMS, it does not provide you with a WYSIWYG editor to quickly write
