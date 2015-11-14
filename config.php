@@ -1,11 +1,20 @@
 <?php
-class Config {
+/**
+ * @package  DiamondMVC
+ * @author   Zyr <zyrius@live.com>
+ * @version  1.0
+ * @license  CC-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/)
+ */
+
+require_once(DIAMONDMVC_ROOT . '/lib/class_ini.php');
+
+class Config extends ini {
 	
 	/**
-	 * Associative array containing the settings of the server.
-	 * @var array
+	 * Source file from which the configuration was read.
+	 * @var string
 	 */
-	private $ini = null;
+	private $source = '';
 	
 	/**
 	 * Database interface object which provides a connection to the configured database.
@@ -25,7 +34,8 @@ class Config {
 			$inifile = dirname(__FILE__) . '/ini.php';
 		}
 		
-		$this->ini = readIni($inifile);
+		$this->source = $inifile;
+		$this->read($inifile);
 		
 		// Initiate database. If not possible an exception is thrown.
 		$this->getDBO();
@@ -40,6 +50,18 @@ class Config {
 			self::$instance = new self();
 		}
 		return self::$instance;
+	}
+	
+	/**
+	 * Clears the current configuration contents and reloads the file from disk.
+	 * @return Config This instance to enable method chaining.
+	 */
+	public function reload( ) {
+		$this->data = array();
+		$this->db   = null;
+		$this->read($this->source);
+		$this->getDBO();
+		return $this;
 	}
 	
 	
@@ -61,29 +83,18 @@ class Config {
 			return $this->db;
 		}
 		
-		$iniDatabase = $this->ini['DATABASE'];
+		$iniDatabase = $this->def('DATABASE', 'DEFAULT');
+		$category    = 'DATABASE.' . $iniDatabase;
+		$host        = $this->def('HOST',   $category, '127.0.0.1');
+		$port        = $this->def('PORT',   $category, 3306);
+		$user        = $this->def('USER',   $category, 'diamondmvc');
+		$pass        = $this->def('PASS',   $category, '');
+		$database    = $this->def('DB',     $category, 'diamondmvc');
+		$prefix      = $this->def('PREFIX', $category, '');
 		
-		if( !isset($this->ini['DATABASE.' . $iniDatabase]) || empty($this->ini['DATABASE.' . $iniDatabase]) ) {
-			throw new Exception("The chosen database configuration was not found");
-		}
+		$this->db = (new database($user, $pass, $host, $port, $prefix))->useDB($database);
 		
-		$iniDbConfig = $this->ini['DATABASE.' . $iniDatabase];
-		$this->db = (new database($iniDbConfig['USER'], $iniDbConfig['PASS'], $iniDbConfig['HOST'], $iniDbConfig['PORT']))
-			->useDB($iniDbConfig['DB']);
 		return $this->db;
-	}
-	
-	/**
-	 * Gets a configuration property. If the given key does not exist, an exception is thrown.
-	 * @param  string $key      INI key
-	 * @param  string $category INI category of the key. Optional.
-	 * @return mixed            Value
-	 */
-	public function get( $key, $category = '' ) {
-		if( !empty($category) and isset($this->ini[$category]) ) {
-			return $this->ini[$category][$key];
-		}
-		return $this->ini[$key];
 	}
 	
 }

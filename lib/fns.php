@@ -211,14 +211,18 @@ function requireLogin( $userlevel = 1 ) {
  * @param integer $stackTraceLength Anzahl der anzuzeigenden Stack-Trace-ELemente. Standardmäßig 5. Setze auf 0 um keinen Stack-Trace anzuzeigen.
  */
 function logMsg( $msg, $level = 1, $stackTraceLength = 5 ) {
-	$user = DiamondMVC::instance()->getCurrentUser();
+	$isLoggedIn = false;
+	if( class_exists('DiamondMVC') ) {
+		$user       = DiamondMVC::instance()->getCurrentUser();
+		$isLoggedIn = DiamondMVC::instance()->isLoggedIn();
+	}
 	
 	$requiredLevel = intval(Config::main()->get('LOG_SEVERITY'));
 	if( $level >= $requiredLevel ) {
 		$bt = debug_backtrace();
 		$ip = $_SERVER['REMOTE_ADDR'];
 		
-		if( DiamondMVC::instance()->isLoggedIn() ) {
+		if( $isLoggedIn ) {
 			$file = date('Y-m-d-') . $user->getName();
 		}
 		else {
@@ -433,107 +437,6 @@ function strip_html( $text ) {
 	return preg_replace('/<.*?>/', ' ', $text);
 }
 
-/**
- * Saves the given associative array in the named ini file. Supports categorized
- * ini files by adding nested arrays. Obviously only supports two-dimensional
- * arrays due to the nature of ini categories.
- * @param  string|resource $file      Path to the file to write to or a file resource.
- * @param  array           $data      Associative array providing the data to write to file.
- * @param  boolean         $protected Whether the file is to be publicly read protected by forcing the checking the existence of the DIAMONDMVC constant with PHP. Accordingly, ensure your server treats the file as a PHP file.
- */
-function saveIni( $file, $data, $protected = false ) {
-	$res = is_resource($file) ? $file : fopen($file, 'w');
-	
-	if( !$res ) {
-		logMsg('Failed to open the Ini file ' . $file, 5);
-		return false;
-	}
-	
-	$categories = array();
-	
-	// First extract all nested arrays.
-	foreach( $data as $key => $value ) {
-		if( is_array($value) ) {
-			$categories[$key] = $value;
-			unset($data[$key]);
-		}
-	}
-	
-	// If public read access is restricted, write the PHP header.
-	fwrite($res, "<?php defined('DIAMONDMVC') or die() ?>\n");
-	
-	// Write non-categorized data.
-	foreach( $data as $key => $value ) {
-		fwrite($res, "$key=" . saveIni_packValue($value) . "\n");
-	}
-	
-	// Write the categories and category data.
-	foreach( $categories as $category => $items ) {
-		fwrite($res, "\n[$category]\n");
-		foreach( $items as $key => $value ) {
-			fwrite($res, "$key=" . saveIni_packValue($value) . "\n");
-		}
-	}
-	
-	// Final blank line
-	fwrite($res, "\n");
-	
-	if( !is_resource($file) ) {
-		fclose($res);
-	}
-	
-	return true;
-}
-
-function saveIni_packValue( $value ) {
-	if( is_object($value) ) {
-		return '__OBJECT__' . urlencode(serialize($value));
-	}
-	return urlencode($value);
-}
-
-function readIni( $file ) {
-	if( !file_exists($file) ) {
-		logMsg('Ini file not found: ' . $file, 5);
-		return false;
-	}
-	
-	ob_start();
-	include($file);
-	$contents = ob_get_contents();
-	ob_end_clean();
-	
-	$ini = parse_ini_string($contents, true);
-	
-	if( !$ini ) {
-		logMsg('Failed to read ini file ' . $file, 5);
-		return false;
-	}
-	
-	$result = array();
-	
-	foreach( $ini as $key => $value ) {
-		if( !is_array($value) ) {
-			$result[$key] = readIni_unpackValue($value);
-		}
-		else {
-			$result[$key] = array();
-			foreach( $value as $key2 => $value2 ) {
-				$result[$key][$key2] = readIni_unpackValue($value2);
-			}
-		}
-	}
-	
-	return $result;
-}
-
-function readIni_unpackValue( $value ) {
-	if( left($value, 10) === '__OBJECT__' ) {
-		return unserialize(urldecode(substr($value, 10)));
-	}
-	return urldecode($value);
-}
-
 
 function parseCurlResponse( $response ) {
 	$lines   = explode("\r\n", $response);
@@ -567,6 +470,29 @@ function parseCurlResponse( $response ) {
  */
 function is_url( $url ) {
 	return preg_match('/^(([a-z]+:)?\/\/)?(((\w|[-])+\.)*((\w|[-])+)|localhost)(:\d+)?\/?/', $url);
+}
+
+/**
+ * Creates a temporary file in the /tmp directory, appending a random suffix for uniqueness between
+ * parallel tasks of the same script.
+ * @param  string $name Basic name of the temporary file. Optional
+ * @return string       Path to the created temporary file. An empty string if creation failed.
+ */
+function create_temporary_file( $name = '' ) {
+	$name = generateRandomName('A-Za-z0-9', 20) . '_' . $name . '.tmp';
+	$path = jailpath(DIAMONDMVC_ROOT . DS . 'tmp', $name);
+	if( !touch($path) ) {
+		return '';
+	}
+	return $path;
+}
+
+/**
+ * Synonym for {@link create_temporary_file()}
+ * @see create_temporary_file()
+ */
+function tmp_file( $name = '' ) {
+	return create_temporary_file($name);
 }
 
 
@@ -706,4 +632,24 @@ function rcopy( $source, $dest ) {
 		$result = $result && $tmp;
 	}
 	return $result;
+}
+
+
+
+if( !function_exists('parse_ini_string') ) {
+	function parse_ini_string( $ini, $process_sections = false, $scanner_mode = INI_SCANNER_NORMAL ) {
+		$path = @tmp_file('parse_ini_string');
+		if( empty($path) ) {
+			throw new Exception("Failed to create temporary file");
+		}
+		
+		if( !@file_put_contents($path, $ini) ) {
+			throw new Exception("Failed to write ini string to temporary file");
+		}
+		
+		$data = parse_ini_file($path, $process_sections, $scanner_mode);
+		
+		@unlink($path);
+		return $data;
+	}
 }

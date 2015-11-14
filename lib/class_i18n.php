@@ -25,7 +25,7 @@
  */
 defined('DIAMONDMVC') or die();
 
-class i18n {
+class i18n extends ini {
 	
 	/**
 	 * Chosen language. By default English.
@@ -77,12 +77,6 @@ class i18n {
 	 */
 	protected $path = '/lang';
 	
-	/**
-	 * Stores the contents of the INI file.
-	 * @var array
-	 */
-	protected $ini = array();
-	
 	
 	/**
 	 * Constructs a new internationalization instance from the given file base name.
@@ -108,16 +102,7 @@ class i18n {
 		// We should've already thrown an exception by here, should it even be empty.
 		assert(!empty($file));
 		
-		// Instead of reading the file contents directly, we'll include the ini/php file and
-		// intercept its output using the output buffer. This allows executing PHP code and
-		// securing possibly sensible data (which on second thought sounds really stupid).
-		ob_start();
-		include($file);
-		$contents = ob_get_contents();
-		ob_end_clean();
-		
-		$this->ini = parse_ini_string($contents, true);
-		return $this;
+		return parent::read($file);
 	}
 	
 	/**
@@ -201,42 +186,6 @@ class i18n {
 			return realpath($real);
 		}
 		return '';
-	}
-	
-	/**
-	 * Gets a translation by key in the named category. If no category is passed, the key is treated as a top level
-	 * entry.
-	 * @param  string $key      INI key to retrieve.
-	 * @param  string $category Optional. INI category to find the key in.
-	 * @return string           Requested translation
-	 */
-	public function get( $key, $category = '' ) {
-		// If we're given a category, search for the category first, then for the key.
-		if( !empty($category) ) {
-			// Category exists?
-			if( !isset($this->ini[$category]) ) {
-				logMsg("Could not find INI category $category in language file {$this->path}/{$this->base}", 1, 5);
-				return '';
-			}
-			
-			// Key exists in category?
-			if( !isset($this->ini[$category][$key]) ) {
-				logMsg("Could not find $key in INI category $category in language file {$this->path}/{$this->base}", 1, 5);
-				return '';
-			}
-			
-			// Wooh!
-			return $this->ini[$category][$key];
-		}
-		
-		// No category given, attempt to find the key on top level
-		if( !isset($this->ini[$key]) ) {
-			logMsg("Could not find $key (no category) in language file {$this->path}/{$this->base}", 1, 5);
-			return '';
-		}
-		
-		// Found
-		return $this->ini[$key];
 	}
 	
 	
