@@ -26,7 +26,6 @@ DEFAULT_LOGIN_REDIRECT='/user' ; Web URL relative to system root to redirect the
 ; Database column enforcement rules
 
 DBO_ENFORCE_COL_DELETED=true
-DBO_ENFORCE_COL_HIDDEN=true
 
 [DATABASE.DEFAULT]
 HOST=127.0.0.1
