@@ -33,6 +33,7 @@ $this->addScript('./client');
 		    }
 		</style>
 	<![endif]-->
+	<link rel="icon" href="<?= DIAMONDMVC_URL ?>/assets/images/favicon.gif" type="image/x-icon">
 </head>
 <body>
 	<div id="master-wrapper"<?php if( $nosidebar ) echo ' class="nosidebar"' ?>>

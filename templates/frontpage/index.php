@@ -25,12 +25,13 @@ $this->addScript('../templates/default/js/client');
 	<title><?= $title ?></title>
 	<?= $this->getDefaultHead() ?>
 	<!--[if gte IE 9]>
-	<style type="text/css">
-	    .gradient {
-	    	filter: none;
-	    }
-	</style>
-<![endif]-->
+		<style type="text/css">
+		    .gradient {
+		    	filter: none;
+		    }
+		</style>
+	<![endif]-->
+	<link rel="icon" href="<?= DIAMONDMVC_URL ?>/assets/images/favicon.gif" type="image/x-icon">
 </head>
 <body>
 	<div id="master-wrapper" class="frontpage-tpl">
